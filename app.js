@@ -21,6 +21,8 @@ const state = {
     importedOrders: [],
     importedJudgments: [],
     // 待执行相关
+    hearingDate: "",
+    caseNumber: "",
     lawsuitAmount: "",
     execFee: "",
     preservationFee: "",
@@ -504,6 +506,18 @@ function renderModalContent() {
       <div class="form-error" id="court-error">请选择法院</div>
     </div>` : "";
 
+  // 待开庭：开庭信息字段（含批次）
+  const hearingFields = state.modal.status === "待开庭" ? `
+    <div class="form-field">
+      <label class="form-label">开庭时间<span class="required">*</span></label>
+      <input type="date" class="form-input" value="${state.modal.hearingDate}" id="hearing-date">
+    </div>
+    <div class="form-field">
+      <label class="form-label">案件号<span class="required">*</span></label>
+      <input type="text" class="form-input" placeholder="请输入案件号" value="${state.modal.caseNumber}" id="case-number">
+    </div>
+  ` : "";
+
   // 待执行：费用字段（无批次）
   const execFields = state.modal.status === "待执行" ? `
     <div class="form-field">
@@ -575,6 +589,7 @@ function renderModalContent() {
     </div>
 
     ${courtField}
+    ${hearingFields}
     ${batchField}
     ${execFields}
     ${closeFields}
@@ -610,6 +625,16 @@ function renderModalContent() {
   document.getElementById("batch-num")?.addEventListener("input", (e) => {
     state.modal.batchNum = e.target.value;
   });
+
+  // 待开庭：开庭时间 + 案件号
+  if (state.modal.status === "待开庭") {
+    document.getElementById("hearing-date")?.addEventListener("change", (e) => {
+      state.modal.hearingDate = e.target.value;
+    });
+    document.getElementById("case-number")?.addEventListener("input", (e) => {
+      state.modal.caseNumber = e.target.value;
+    });
+  }
 
   // 待执行：费用计算
   if (state.modal.status === "待执行") {
@@ -680,6 +705,18 @@ function bindModalEvents() {
         document.getElementById("court-error").textContent = "请输入法院名称";
         document.getElementById("court-error").classList.add("show");
         showToast("请输入法院名称", "error");
+        return;
+      }
+    }
+
+    // 待开庭：验证开庭信息
+    if (state.modal.status === "待开庭") {
+      if (!state.modal.hearingDate) {
+        showToast("请选择开庭时间", "error");
+        return;
+      }
+      if (!state.modal.caseNumber.trim()) {
+        showToast("请输入案件号", "error");
         return;
       }
     }
