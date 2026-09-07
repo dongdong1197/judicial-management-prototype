@@ -18,6 +18,7 @@ const state = {
     court: "",
     courtInput: "",
     showCourtInput: false,
+    debtTransferEntity: "",
     importedOrders: [],
     importedJudgments: [],
     // 待执行相关
@@ -453,6 +454,7 @@ function openStatusModal(fromStatus = "") {
   state.modal.court = "";
   state.modal.courtInput = "";
   state.modal.showCourtInput = false;
+  state.modal.debtTransferEntity = "";
   state.modal.importedOrders = [];
   state.modal.importedJudgments = [];
   renderModalContent();
@@ -504,6 +506,17 @@ function renderModalContent() {
         <input type="text" class="form-input" placeholder="请输入法院名称" id="modal-court-input" style="margin-top:8px;">
       </div>
       <div class="form-error" id="court-error">请选择法院</div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">债转主体<span class="required">*</span></label>
+      <select class="form-input form-select" id="modal-debt-entity-select">
+        <option value="">请选择债转主体</option>
+        <option value="天津几何网络科技有限公司">天津几何网络科技有限公司</option>
+        <option value="天津蒙态网络科技有限公司">天津蒙态网络科技有限公司</option>
+        <option value="石家庄绿悦企业管理有限公司">石家庄绿悦企业管理有限公司</option>
+        <option value="石家庄绿心企业管理有限公司">石家庄绿心企业管理有限公司</option>
+      </select>
+      <div class="form-error" id="debt-entity-error">请选择债转主体</div>
     </div>` : "";
 
   // 待开庭：开庭信息字段（含批次）
@@ -616,6 +629,10 @@ function renderModalContent() {
     document.getElementById("modal-court-input")?.addEventListener("input", (e) => {
       state.modal.courtInput = e.target.value;
     });
+    document.getElementById("modal-debt-entity-select")?.addEventListener("change", (e) => {
+      state.modal.debtTransferEntity = e.target.value;
+      document.getElementById("debt-entity-error")?.classList.remove("show");
+    });
   }
 
   // Bind batch inputs
@@ -705,6 +722,11 @@ function bindModalEvents() {
         document.getElementById("court-error").textContent = "请输入法院名称";
         document.getElementById("court-error").classList.add("show");
         showToast("请输入法院名称", "error");
+        return;
+      }
+      if (!state.modal.debtTransferEntity) {
+        document.getElementById("debt-entity-error").classList.add("show");
+        showToast("请选择债转主体", "error");
         return;
       }
     }
